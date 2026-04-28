@@ -45,3 +45,18 @@ app.patch('/tarefas/:id/status', (req, res) => {
         res.json({'Novo status': status})
     })
 })
+
+// ─── DELETE /tarefas/:id ──────────────────────────────────
+// Deleta uma tarefa usando o metodo DELETE
+
+app.delete('/tarefas/:id', (req, res) => {
+    const { id } = req.params // pega o ID da tarefa a ser deletada
+
+    db.query('delete from tarefas where id = ?', [id], (err) =>{
+        if (err) return res.status(500).json({ error: 'Erro ao deletar tarefa' });
+        res.json({message: 'Tarefa deletada com sucesso'}) // retorna uma mensagem de sucesso
+    })
+})
+
+// Inicia o servidor na porta 3001
+app.listen(3001, () => {console.log('API rodando em http://localhost:3001');})
