@@ -28,3 +28,20 @@ app.post('/tarefas', (req, res) => { // rota para criar uma nova tarefa
             res.status(201).json({id: result.insertId, titulo, status:'a_fazer'})// retorna a nova tarefa criada com o ID gerado, título e status padrão 'a_fazer'
         })
 })
+
+// ─── PATCH /tarefas/:id/status ──────────────────────────────────
+// Atualiza o status de uma tarefa usando o metodo PATCH
+
+app.patch('/tarefas/:id/status', (req, res) => { 
+    const { id } = req.params // pega o ID da tarefa a ser atualizada
+    const { status } = req.body // pega o novo status que o front enviou
+
+    const validos = ['a_fazer', 'fazendo', 'concluido'] // define os status válidos
+    if(!validos.includes(status)) //o includes verifica se o status enviado é um dos válidos, se não for, retorna um erro 400
+        return res.status(400).json({error: 'Status inválido.'})
+
+    db.query('update tarefas set status = ? where id = ?', [status, id], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Erro ao atualizar status' });
+        res.json({'Novo status': status})
+    })
+})
