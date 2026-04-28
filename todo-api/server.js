@@ -1,5 +1,6 @@
 const express = require('express'); // importa o express para criar o servidor
 const cors = require('cors'); // importa o cors para permitir requisições de outros domínios
+// O CORS é obrigatório porque front e API rodam em portas diferentes
 const db = require('./db'); // importa a conexão com o banco de dados
 
 const app = express(); // cria uma instância do express
@@ -33,7 +34,7 @@ app.post('/tarefas', (req, res) => { // rota para criar uma nova tarefa
 // Atualiza o status de uma tarefa usando o metodo PATCH
 
 app.patch('/tarefas/:id/status', (req, res) => { 
-    const { id } = req.params // pega o ID da tarefa a ser atualizada
+    const { id } = req.params // req.params são os valores dinamicos da url, tipo id
     const { status } = req.body // pega o novo status que o front enviou
 
     const validos = ['a_fazer', 'fazendo', 'concluido'] // define os status válidos
