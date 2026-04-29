@@ -75,7 +75,7 @@ export default function Home() {
       {/* ── KANBAN ───────────────────────────────── */}
       {/* DragDropContext envolve tudo que pode ser arrastado */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 p-6 overflow-x-auto">
+        <div className="flex justify-center gap-10 p-6 overflow-x-auto">
           {COLUNAS.map((coluna) => {
             // Filtra só as tarefas dessa coluna
             const tarefasDaColuna = tarefas.filter(t => t.status === coluna.id);
@@ -99,7 +99,7 @@ export default function Home() {
                     <div
                       ref={provided.innerRef}        // ref obrigatório do dnd
                       {...provided.droppableProps}   // props obrigatórias do dnd
-                      className={`flex flex-col gap-2 min-h-32 rounded-xl border-2 p-2 transition-colors ${
+                      className={`flex flex-col gap-2 min-h-24 rounded-xl border-2 p-2 transition-colors ${
                         snapshot.isDraggingOver      // muda cor quando está arrastando em cima
                           ? 'border-emerald-400 bg-emerald-50'
                           : coluna.cor
@@ -115,19 +115,28 @@ export default function Home() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}   // faz o card se mover
                               {...provided.dragHandleProps}  // define onde clicar pra arrastar
-                              className={`bg-white rounded-lg border border-gray-200 p-3 cursor-grab active:cursor-grabbing transition-shadow ${
-                                snapshot.isDragging ? 'shadow-xl arrastando' : 'shadow-sm hover:shadow-md'
-                              }`}
+                              className="cursor-grab active:cursor-grabbing"
                             >
-                              <p className="text-sm text-gray-800 font-medium leading-snug">
-                                {tarefa.titulo}
-                              </p>
-                              <button
-                                onClick={() => handleDeletar(tarefa.id)}
-                                className="mt-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+                              {/* div interno — a biblioteca não mexe aqui, então a animação funciona */}
+                              <div
+                                className={`bg-white rounded-lg border border-gray-200 p-3 ${
+                                  snapshot.isDragging ? 'shadow-xl' : 'shadow-sm hover:shadow-md'
+                                }`}
+                                style={snapshot.isDragging ? {
+                                  animation: 'balancar 1s ease-in-out infinite',
+                                  transformOrigin: 'top center',
+                                } : {}}
                               >
-                                Deletar
-                              </button>
+                                <p className="text-sm text-gray-800 font-medium leading-snug">
+                                  {tarefa.titulo}
+                                </p>
+                                <button
+                                  onClick={() => handleDeletar(tarefa.id)}
+                                  className="mt-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+                                >
+                                  Deletar
+                                </button>
+                              </div>
                             </div>
                           )}
                         </Draggable>
@@ -159,6 +168,7 @@ export default function Home() {
               onChange={(e) => setTitulo(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCriar()}
               placeholder="Nome da tarefa..."
+              maxLength={50}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-4"
             />
             <div className="flex gap-2 justify-end">
