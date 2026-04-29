@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { getTarefas, criarTarefa, updateStatus, deletarTarefa } from '@/services/tarefas';
+import { Settings, Settings2 } from "lucide-react";
 
 const COLUNAS = [
   { id: 'a_fazer',   label: 'A fazer',   cor: 'bg-stone-100 border-stone-300 dark:bg-gray-700 dark:border-gray-600' },
@@ -68,7 +69,7 @@ export default function Home() {
               cursor-pointer text-sm font-medium px-4 py-2 rounded-lg transition-colors
             "
           >
-            Configurações
+            <Settings2/>
           </button>
 
           <button
