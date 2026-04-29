@@ -24,9 +24,9 @@ app.post('/tarefas', (req, res) => { // rota para criar uma nova tarefa
     const { titulo } = req.body //  pega o título que o front enviou
     if(!titulo) return res.status(400).json({error: 'O título é obrigatório'}) 
 
-        db.query('inset into tarefas (titulo) values (?)', [titulo], (err, results) => { // consulta SQL para inserir uma nova tarefa com o título fornecido
+        db.query('insert into tarefas (titulo) values (?)', [titulo], (err, results) => { // consulta SQL para inserir uma nova tarefa com o título fornecido
             if (err) return res.status(500).json({ error: 'Erro ao criar tarefa' });
-            res.status(201).json({id: result.insertId, titulo, status:'a_fazer'})// retorna a nova tarefa criada com o ID gerado, título e status padrão 'a_fazer'
+            res.status(201).json({id: results.insertId, titulo, status:'a_fazer'})// retorna a nova tarefa criada com o ID gerado, título e status padrão 'a_fazer'
         })
 })
 

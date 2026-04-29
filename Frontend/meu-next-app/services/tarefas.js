@@ -18,7 +18,7 @@ export async function criarTarefa(titulo) {
 }
 
 //Função para atualizar o status de uma tarefa
-export async function atualizarStatus(id, status) {
+export async function updateStatus(id, status) {
     const res = await fetch(`${API}/tarefas/${id}/status`, { // faz uma requisição PATCH para a URL da API seguida do ID da tarefa e /status
         method: 'PATCH', // define o método da requisição como PATCH, caso contrário, o fetch usaria GET por padrão
         headers: {'Content-Type': 'application/json'}, // define o cabeçalho da requisição para indicar que o corpo é JSON
