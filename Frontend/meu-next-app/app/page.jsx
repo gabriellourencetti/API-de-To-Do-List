@@ -92,7 +92,7 @@ export default function Home() {
             const tarefasDaColuna = tarefas.filter(t => t.status === coluna.id);
 
             return (
-              <div key={coluna.id} className="flex flex-col w-72 shrink-0 h-screen">
+              <div key={coluna.id} className="flex flex-col w-72 shrink-0 max-h-screen">
 
                 {/* Título da coluna */}
                 <div className="flex items-center justify-between mb-3">
