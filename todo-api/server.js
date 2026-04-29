@@ -25,7 +25,7 @@ app.post('/tarefas', (req, res) => { // rota para criar uma nova tarefa
     if(!titulo) return res.status(400).json({error: 'O título é obrigatório'}) 
 
         db.query('insert into tarefas (titulo) values (?)', [titulo], (err, results) => { // consulta SQL para inserir uma nova tarefa com o título fornecido
-            if (err) return res.status(500).json({ error: 'Erro ao criar tarefa' });
+            if (err) return res.status(500).json({ error: err.message }); // mostra o erro real do MySQL
             res.status(201).json({id: results.insertId, titulo, status:'a_fazer'})// retorna a nova tarefa criada com o ID gerado, título e status padrão 'a_fazer'
         })
 })
