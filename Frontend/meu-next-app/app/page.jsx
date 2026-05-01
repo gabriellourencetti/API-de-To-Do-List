@@ -289,7 +289,7 @@ export default function Home() {
             </h2>
 
             <p className="text-sm text-stone-500 dark:text-gray-400 mb-4">
-              Status atual: {tarefaSelecionada.status}
+              Status atual: <span className='text-amber-700 dark:text-indigo-600'>{tarefaSelecionada.status}</span>
             </p>
 
             <div className="flex flex-col gap-2">
@@ -299,7 +299,7 @@ export default function Home() {
                   <button
                     key={c.id}
                     onClick={() => handleMudarStatus(tarefaSelecionada.id, c.id)}
-                    className="dark:text-white text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-gray-600 hover:bg-stone-100 dark:hover:bg-gray-700 transition-colors text-left"
+                    className="dark:text-white cursor-pointer text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-gray-600 hover:bg-stone-100 dark:hover:bg-gray-700 transition-colors text-left"
                   >
                     Marcar como {c.label}
                   </button>
@@ -308,7 +308,7 @@ export default function Home() {
 
             <button
               onClick={fecharTarefa}
-              className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-stone-200 dark:bg-gray-700 hover:bg-stone-300 dark:hover:bg-gray-600"
+              className="cursor-pointer mt-4 w-full text-sm px-3 py-2 rounded-lg bg-stone-200 dark:bg-gray-700 hover:bg-stone-300 dark:hover:bg-gray-600"
             >
               Fechar
             </button>
