@@ -12,6 +12,8 @@ const COLUNAS = [
   { id: 'concluido', label: 'Concluído', cor: 'bg-stone-50  border-stone-200  dark:bg-gray-700 dark:border-gray-600' },
 ];
 
+const name = 'Nexo'
+
 export default function Home() {
   const [tarefas, setTarefas] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
@@ -71,7 +73,7 @@ export default function Home() {
       <header className="bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 px-6 py-4 flex items-center shadow-sm">
         <div className="w-50">
           <h1 className="text-lg font-semibold text-stone-800 dark:text-gray-100">
-            Lourencetti tarefas
+          {name}
           </h1>
         </div>
         <div className="flex justify-end gap-3 w-full">
@@ -102,6 +104,8 @@ export default function Home() {
       </header>
 
       {/* ── KANBAN ───────────────────────────────── */}
+      <header className='w-full h-20 flex justify-center items-center'><h1 className='text-gray-500 font-bold text-3xl'>O que faremos hoje, {localStorage.getItem('nome')}?</h1></header>
+      
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex justify-center gap-10 p-6 overflow-x-auto bg-stone-50 dark:bg-gray-900 transition-colors duration-300">
           {COLUNAS.map((coluna) => {

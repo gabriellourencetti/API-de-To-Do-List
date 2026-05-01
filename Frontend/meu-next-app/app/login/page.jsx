@@ -9,6 +9,7 @@ export default function Login() {
     const [tela, setTela] = useState('login'); // 'login' ou 'cadastro'
     const [erro, setErro] = useState('');
     const [carregando, setCarregando] = useState(false);
+    const name = 'Nexo'
 
     // Campos do formulário
     const [nome, setNome] = useState('');
@@ -72,7 +73,7 @@ export default function Login() {
 
                 {/* Título */}
                 <h1 className="text-xl font-semibold text-stone-800 dark:text-gray-100 mb-1">
-                    Lourencetti tarefas
+                      {name}
                 </h1>
                 <p className="text-sm text-stone-500 dark:text-gray-400 mb-6">
                     {tela === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}
@@ -151,18 +152,18 @@ export default function Login() {
                         w-full text-sm font-medium text-white py-2 rounded-lg transition-colors
                         bg-amber-700 hover:bg-amber-800
                         dark:bg-indigo-600 dark:hover:bg-indigo-500
-                        disabled:opacity-50 disabled:cursor-not-allowed
+                        disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                     "
                 >
                     {carregando ? 'Aguarde...' : tela === 'login' ? 'Entrar' : 'Criar conta'}
                 </button>
 
                 {/* Troca entre login e cadastro */}
-                <p className="text-xs text-center text-stone-500 dark:text-gray-400 mt-4">
+                <p className="text-xs text-center text-stone-500 dark:text-gray-400 mt-4 ">
                     {tela === 'login' ? 'Não tem conta?' : 'Já tem conta?'}
                     <button
                         onClick={() => { setTela(tela === 'login' ? 'cadastro' : 'login'); setErro(''); }}
-                        className="ml-1 text-amber-700 dark:text-indigo-400 hover:underline font-medium"
+                        className="ml-1 text-amber-700 dark:text-indigo-400 hover:underline font-medium cursor-pointer"
                     >
                         {tela === 'login' ? 'Cadastre-se' : 'Entrar'}
                     </button>
