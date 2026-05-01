@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { getTarefas, criarTarefa, updateStatus, deletarTarefa } from '@/services/tarefas';
 import { Settings, Settings2 } from "lucide-react";
@@ -17,11 +18,25 @@ export default function Home() {
   const [modalConfigAberto, setModalConfigAberto] = useState(false);
   const [titulo, setTitulo] = useState('');
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
-  useEffect(() => { carregarTarefas(); }, []);
+  useEffect(() => {
+    // Se não tiver token salvo, manda pro login
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    carregarTarefas();
+  }, []);
 
   async function carregarTarefas() {
     const data = await getTarefas();
+    // Se a API retornar um erro (ex: token inválido), redireciona pro login
+    if (!Array.isArray(data)) {
+      router.push('/login');
+      return;
+    }
     setTarefas(data);
   }
 
@@ -227,7 +242,7 @@ export default function Home() {
           >
             <h2 className="text-base font-semibold text-stone-800 dark:text-gray-100 mb-4">Configurações</h2>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-4">
               <span className="text-stone-700 dark:text-gray-300 text-sm">Modo escuro</span>
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -241,6 +256,18 @@ export default function Home() {
                 }`} />
               </button>
             </div>
+
+            {/* Botão de sair */}
+            <button
+              onClick={() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('nome');
+                router.push('/login');
+              }}
+              className="w-full text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 py-2 rounded-lg transition-colors"
+            >
+              Sair da conta
+            </button>
 
           </div>
         </div>
