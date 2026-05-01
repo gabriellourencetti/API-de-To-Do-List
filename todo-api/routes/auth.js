@@ -2,7 +2,9 @@ const express = require('express');
 const bcrypt  = require('bcrypt');
 const jwt     = require('jsonwebtoken');
 const db      = require('../db'); // ../ porque está dentro de routes/
-const router = express.Router();
+const router  = express.Router();
+const JWT_SECRET = 'todo_secret_123';
+
 
 // ─── POST /cadastro ───────────────────────────────────────────
 // Recebe nome, email e senha — salva o usuário no banco com a senha criptografada
