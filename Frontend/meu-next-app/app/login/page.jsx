@@ -76,7 +76,7 @@ export default function Login() {
                       {name}
                 </h1>
                 <p className="text-sm text-stone-500 dark:text-gray-400 mb-6">
-                    {tela === 'login' ? 'Entre na sua conta' : 'Crie sua conta'}
+                    {tela === 'login' ? 'Entre na sua conta :)' : 'Crie sua conta :D'}
                 </p>
 
                 {/* Campo nome — só aparece no cadastro */}
