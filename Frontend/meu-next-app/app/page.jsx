@@ -145,7 +145,7 @@ export default function Home() {
 
       {/* ── KANBAN ───────────────────────────────── */}
       <main className="flex-1 flex flex-col">
-        <header className='w-full h-20 flex justify-center items-center'><h1 className='text-gray-500 font-bold text-3xl'>{frase}</h1></header>
+        <header className='w-full h-20 flex pt-5 justify-center items-center'><h1 className='text-gray-500 font-bold text-3xl'>{frase}</h1></header>
 
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex justify-center max-h-screen gap-10 p-6 overflow-x-auto bg-stone-50 dark:bg-gray-900 transition-colors duration-300">
