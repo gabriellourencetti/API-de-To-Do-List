@@ -23,6 +23,15 @@ export default function Home() {
   const [frase, setFrase] = useState('');
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
+
+  function abrirTarefa(tarefa) {
+    setTarefaSelecionada(tarefa);
+  }
+
+  function fecharTarefa() {
+    setTarefaSelecionada(null);
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -70,6 +79,12 @@ export default function Home() {
       prev.map(t => t.id === Number(tarefaId) ? { ...t, status: novoStatus } : t)
     );
     await updateStatus(tarefaId, novoStatus);
+  }
+
+  async function handleMudarStatus(id, novoStatus) {
+    await updateStatus(id, novoStatus);
+    fecharTarefa();
+    carregarTarefas();
   }
 
   return (
@@ -129,10 +144,17 @@ export default function Home() {
                           ref={provided.innerRef}
                           {...provided.droppableProps}
                           className={`flex flex-col gap-2 min-h-24 rounded-xl border-2 p-2 transition-colors ${snapshot.isDraggingOver
-                              ? 'border-amber-600 bg-amber-50 dark:border-indigo-400 dark:bg-indigo-950'
-                              : coluna.cor
+                            ? 'border-amber-600 bg-amber-50 dark:border-indigo-400 dark:bg-indigo-950'
+                            : coluna.cor
                             }`}
                         >
+
+
+
+
+
+
+
                           {tarefasDaColuna.map((tarefa, index) => (
                             <Draggable key={String(tarefa.id)} draggableId={String(tarefa.id)} index={index}>
                               {(provided, snapshot) => (
@@ -141,16 +163,20 @@ export default function Home() {
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                   className="cursor-grab active:cursor-grabbing"
+                                  onClick={() => abrirTarefa(tarefa)}
                                 >
                                   <div className={`bg-white dark:bg-gray-800 rounded-lg border border-stone-200 dark:border-gray-600 p-3 transition-shadow ${snapshot.isDragging
-                                      ? 'shadow-xl ring-2 ring-amber-400 dark:ring-indigo-400'
-                                      : 'shadow-sm hover:shadow-md hover:border-amber-400 dark:hover:border-indigo-400'
+                                    ? 'shadow-xl ring-2 ring-amber-400 dark:ring-indigo-400'
+                                    : 'shadow-sm hover:shadow-md hover:border-amber-400 dark:hover:border-indigo-400'
                                     }`}>
                                     <p className="text-sm text-stone-800 dark:text-gray-100 font-medium leading-snug">
                                       {tarefa.titulo}
                                     </p>
                                     <button
-                                      onClick={() => handleDeletar(tarefa.id)}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeletar(tarefa.id);
+                                      }}
                                       className="mt-2 text-xs text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
                                     >
                                       Deletar
@@ -244,6 +270,47 @@ export default function Home() {
               onClick={() => { localStorage.removeItem('token'); localStorage.removeItem('nome'); router.push('/login'); }}
               className="w-full text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 py-2 rounded-lg transition-colors">
               Sair da conta
+            </button>
+          </div>
+        </div>
+      )}
+
+      {tarefaSelecionada && (
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={fecharTarefa}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-sm shadow-xl border border-stone-200 dark:border-gray-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-base font-semibold text-stone-800 dark:text-gray-100 mb-2">
+              {tarefaSelecionada.titulo}
+            </h2>
+
+            <p className="text-sm text-stone-500 dark:text-gray-400 mb-4">
+              Status atual: {tarefaSelecionada.status}
+            </p>
+
+            <div className="flex flex-col gap-2">
+              {COLUNAS
+                .filter((c) => c.id !== tarefaSelecionada.status)
+                .map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => handleMudarStatus(tarefaSelecionada.id, c.id)}
+                    className="dark:text-white text-sm px-3 py-2 rounded-lg border border-stone-300 dark:border-gray-600 hover:bg-stone-100 dark:hover:bg-gray-700 transition-colors text-left"
+                  >
+                    Marcar como {c.label}
+                  </button>
+                ))}
+            </div>
+
+            <button
+              onClick={fecharTarefa}
+              className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-stone-200 dark:bg-gray-700 hover:bg-stone-300 dark:hover:bg-gray-600"
+            >
+              Fechar
             </button>
           </div>
         </div>
