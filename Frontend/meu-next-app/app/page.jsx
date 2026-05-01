@@ -7,8 +7,8 @@ import { getTarefas, criarTarefa, updateStatus, deletarTarefa } from '@/services
 import { Settings, Settings2 } from "lucide-react";
 
 const COLUNAS = [
-  { id: 'a_fazer',   label: 'A fazer',   cor: 'bg-stone-100 border-stone-300 dark:bg-gray-700 dark:border-gray-600' },
-  { id: 'fazendo',   label: 'Fazendo',   cor: 'bg-amber-50  border-amber-300  dark:bg-gray-700 dark:border-indigo-600' },
+  { id: 'a_fazer', label: 'A fazer', cor: 'bg-stone-100 border-stone-300 dark:bg-gray-700 dark:border-gray-600' },
+  { id: 'fazendo', label: 'Fazendo', cor: 'bg-amber-50  border-amber-300  dark:bg-gray-700 dark:border-indigo-600' },
   { id: 'concluido', label: 'Concluído', cor: 'bg-stone-50  border-stone-200  dark:bg-gray-700 dark:border-gray-600' },
 ];
 
@@ -21,6 +21,32 @@ export default function Home() {
   const [titulo, setTitulo] = useState('');
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [nomeUsuario, setNomeUsuario] = useState('');
+  const [frase, setFrase] = useState('')
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    const nome = localStorage.getItem(('nome') || '')
+    setNomeUsuario(nome);
+
+    const frases = [
+      `O que faremos hoje, ${nome}?`,
+      `Apenas anexando, ${nome}?`,
+      `O que está na lista hoje, ${nome}?`,
+      `Bora trabalhar, ${nome}!`,
+      `O que vamos conquistar hoje, ${nome}?`,
+      `Mais um dia, mais uma vitória, ${nome}!`,
+    ];
+
+    setFrase(frases[Math.floor(Math.random() * frases.length)]);
+    carregarTarefas();
+  }, []);
 
   useEffect(() => {
     // Se não tiver token salvo, manda pro login
@@ -55,6 +81,7 @@ export default function Home() {
     carregarTarefas();
   }
 
+
   async function handleDragEnd(result) {
     if (!result.destination) return;
     const novoStatus = result.destination.droppableId;
@@ -66,124 +93,137 @@ export default function Home() {
     await updateStatus(tarefaId, novoStatus);
   }
 
+
+
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-stone-50 dark:bg-gray-900 transition-colors duration-300 flex">
 
       {/* ── HEADER ───────────────────────────────── */}
-      <header className="bg-white dark:bg-gray-800 border-b border-stone-200 dark:border-gray-700 px-6 py-4 flex items-center shadow-sm">
-        <div className="w-50">
-          <h1 className="text-lg font-semibold text-stone-800 dark:text-gray-100">
-          {name}
+      <aside className="bg-white dark:bg-gray-800 border-r border-stone-200 dark:border-gray-700 py-6 flex flex-col items-center shadow-sm min-h-screen w-16 shrink-0">
+
+        {/* Nome */}
+        <div className="mb-auto">
+          <h1 className="text-xs font-bold tracking-widest text-stone-400 dark:text-gray-500 uppercase [writing-mode:vertical-rl] rotate-180">
+            {name}
           </h1>
         </div>
-        <div className="flex justify-end gap-3 w-full">
 
+        {/* Botões */}
+        <div className="flex flex-col gap-3 items-center">
+
+          {/* Configurações */}
           <button
             onClick={() => setModalConfigAberto(true)}
+            title="Configurações"
             className="
-              bg-stone-200 hover:bg-stone-300 text-stone-700
-              dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200
-              cursor-pointer text-sm font-medium px-4 py-2 rounded-lg transition-colors
-            "
+        text-stone-400 hover:text-stone-700
+        dark:text-gray-500 dark:hover:text-gray-200
+        hover:bg-stone-100 dark:hover:bg-gray-700
+        cursor-pointer p-2 rounded-lg transition-all
+      "
           >
-            <Settings2/>
+            <Settings2 size={18} />
           </button>
 
+          {/* Adicionar */}
           <button
             onClick={() => setModalAberto(true)}
+            title="Nova tarefa"
             className="
-              bg-amber-700 hover:bg-amber-800 text-white
-              dark:bg-indigo-600 dark:hover:bg-indigo-500
-              cursor-pointer text-sm font-medium px-4 py-2 rounded-lg transition-colors
-            "
+        bg-amber-700 hover:bg-amber-600 text-white
+        dark:bg-indigo-600 dark:hover:bg-indigo-500
+        cursor-pointer w-9 h-9 rounded-xl
+        flex items-center justify-center
+        transition-all shadow-sm hover:shadow-md
+      "
           >
-            + Adicionar tarefa
+            <span className="text-lg font-light leading-none">+</span>
           </button>
 
         </div>
-      </header>
+      </aside>
 
       {/* ── KANBAN ───────────────────────────────── */}
-      <header className='w-full h-20 flex justify-center items-center'><h1 className='text-gray-500 font-bold text-3xl'>O que faremos hoje, {localStorage.getItem('nome')}?</h1></header>
-      
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex justify-center gap-10 p-6 overflow-x-auto bg-stone-50 dark:bg-gray-900 transition-colors duration-300">
-          {COLUNAS.map((coluna) => {
-            const tarefasDaColuna = tarefas.filter(t => t.status === coluna.id);
+      <main className="flex-1 flex flex-col">
+        <header className='w-full h-20 flex justify-center items-center'><h1 className='text-gray-500 font-bold text-3xl'>{frase}</h1></header>
 
-            return (
-              <div key={coluna.id} className="flex flex-col w-72 shrink-0 max-h-screen">
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="flex justify-center max-h-screen gap-10 p-6 overflow-x-auto bg-stone-50 dark:bg-gray-900 transition-colors duration-300">
+            {COLUNAS.map((coluna) => {
+              const tarefasDaColuna = tarefas.filter(t => t.status === coluna.id);
 
-                {/* Título da coluna */}
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-stone-500 dark:text-gray-400 uppercase tracking-wide">
-                    {coluna.label}
-                  </h2>
-                  <span className="text-xs bg-stone-200 dark:bg-gray-700 text-stone-600 dark:text-gray-400 px-2 py-0.5 rounded-full">
-                    {tarefasDaColuna.length}
-                  </span>
-                </div>
+              return (
+                <div key={coluna.id} className="flex flex-col w-72 shrink-0 max-h-screen">
 
-                <Droppable droppableId={coluna.id}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`flex flex-col gap-2 min-h-24 rounded-xl border-2 p-2 transition-colors ${
-                        snapshot.isDraggingOver
+                  {/* Título da coluna */}
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-semibold text-stone-500 dark:text-gray-400 uppercase tracking-wide">
+                      {coluna.label}
+                    </h2>
+                    <span className="text-xs bg-stone-200 dark:bg-gray-700 text-stone-600 dark:text-gray-400 px-2 py-0.5 rounded-full">
+                      {tarefasDaColuna.length}
+                    </span>
+                  </div>
+
+                  <Droppable droppableId={coluna.id}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`flex flex-col gap-2 min-h-24 rounded-xl border-2 p-2 transition-colors ${snapshot.isDraggingOver
                           ? 'border-amber-600 bg-amber-50 dark:border-indigo-400 dark:bg-indigo-950'
                           : coluna.cor
-                      }`}
-                    >
-                      {tarefasDaColuna.map((tarefa, index) => (
-                        <Draggable key={String(tarefa.id)} draggableId={String(tarefa.id)} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="cursor-grab active:cursor-grabbing"
-                            >
+                          }`}
+                      >
+                        {tarefasDaColuna.map((tarefa, index) => (
+                          <Draggable key={String(tarefa.id)} draggableId={String(tarefa.id)} index={index}>
+                            {(provided, snapshot) => (
                               <div
-                                className={`
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="cursor-grab active:cursor-grabbing"
+                              >
+                                <div
+                                  className={`
                                   bg-white dark:bg-gray-800
                                   rounded-lg border
                                   border-stone-200 dark:border-gray-600
                                   p-3 transition-shadow
                                   ${snapshot.isDragging
-                                    ? 'shadow-xl ring-2 ring-amber-400 dark:ring-indigo-400'
-                                    : 'shadow-sm hover:shadow-md hover:border-amber-400 dark:hover:border-indigo-400'
-                                  }
+                                      ? 'shadow-xl ring-2 ring-amber-400 dark:ring-indigo-400'
+                                      : 'shadow-sm hover:shadow-md hover:border-amber-400 dark:hover:border-indigo-400'
+                                    }
                                 `}
-                                style={snapshot.isDragging ? {
-                                  animation: 'balancar 1s ease-in-out infinite',
-                                  transformOrigin: 'top center',
-                                } : {}}
-                              >
-                                <p className="text-sm text-stone-800 dark:text-gray-100 font-medium leading-snug">
-                                  {tarefa.titulo}
-                                </p>
-                                <button
-                                  onClick={() => handleDeletar(tarefa.id)}
-                                  className="mt-2 text-xs text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                  style={snapshot.isDragging ? {
+                                    animation: 'balancar 1s ease-in-out infinite',
+                                    transformOrigin: 'top center',
+                                  } : {}}
                                 >
-                                  Deletar
-                                </button>
+                                  <p className="text-sm text-stone-800 dark:text-gray-100 font-medium leading-snug">
+                                    {tarefa.titulo}
+                                  </p>
+                                  <button
+                                    onClick={() => handleDeletar(tarefa.id)}
+                                    className="mt-2 text-xs text-red-400 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                  >
+                                    Deletar
+                                  </button>
+                                </div>
                               </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            );
-          })}
-        </div>
-      </DragDropContext>
-
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              );
+            })}
+          </div>
+        </DragDropContext>
+      </main>
       {/* ── MODAL DE ADICIONAR ────────────────────── */}
       {modalAberto && (
         <div
@@ -250,14 +290,12 @@ export default function Home() {
               <span className="text-stone-700 dark:text-gray-300 text-sm">Modo escuro</span>
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
-                  theme === 'dark' ? 'bg-indigo-500' : 'bg-stone-300'
-                }`}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${theme === 'dark' ? 'bg-indigo-500' : 'bg-stone-300'
+                  }`}
                 title={theme === 'dark' ? 'Mudar para claro' : 'Mudar para escuro'}
               >
-                <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-300 ${
-                  theme === 'dark' ? 'translate-x-6' : 'translate-x-0'
-                }`} />
+                <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-300 ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'
+                  }`} />
               </button>
             </div>
 
