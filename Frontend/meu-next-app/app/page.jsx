@@ -122,7 +122,6 @@ export default function Home() {
               {frase}
             </p>
           </header>
-
           {/* Kanban */}
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="justify-center flex flex-col lg:flex-row gap-4 lg:gap-8 px-4 lg:px-8 pb-28 lg:pb-8">

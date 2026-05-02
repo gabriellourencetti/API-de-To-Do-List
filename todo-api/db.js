@@ -3,31 +3,18 @@ const mysql = require('mysql2'); // importa o mysql2 para conectar ao banco de d
 
 // configuração do banco de dados
 const db = mysql.createConnection({ 
-    host: 'localhost',
-    user: 'root',  // usuario do banco
-    password: '', // senha do banco 
-    database: 'todo_db'
+    host: 'm9kaz8.h.filess.io',
+    user: 'todo_db_paledutyof',  // usuario do banco
+    password: 'fa97f503e31e1c5e1c5aef2d8540042b17e4d94f', // senha do banco 
+    database: 'todo_db_paledutyof',
+    port: 61002,
+    ssl: { rejectUnauthorized: false }
 });
 
 // Conectando ao banco de dados
 db.connect((err) => {
     if (err) throw err;
-    console.log('Conectado ao banco de dados MySQL!');
+    console.log('Conectado ao banco de dados!');
 });
 
 module.exports = db; // exporta a conexão para ser usada em outros arquivos
-
-/* 
-
-no banco de dados, crie um banco chamado "todo_db" e uma
-tabela chamada "tarefas" com os seguintes campos:
-
-
-create table tarefas (
-id int auto_increment primary key,
-titulo varchar(200) not null,
-status ENUM('a_fazer', 'fazendo', 'concluido') DEFAULT 'a_fazer',
-criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-); 
-
-*/

@@ -16,10 +16,10 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
 
-    useEffect(() =>{
-        const token = localStorage.setItem('token', data.token)
-        if(token) router.push('/')
-    }, [])
+ useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) router.push('/');
+}, []);
 
     async function handleLogin() {
         setErro('');
