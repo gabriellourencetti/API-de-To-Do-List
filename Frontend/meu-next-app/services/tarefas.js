@@ -1,4 +1,4 @@
-const API = 'http://localhost:3001';
+const API = 'https://api-de-to-do-list.onrender.com';
 
 // Pega o token salvo no localStorage — é ele que prova pro backend quem é o usuário
 function getToken() {
