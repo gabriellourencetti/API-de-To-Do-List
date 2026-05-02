@@ -200,7 +200,7 @@ export default function Home() {
             {theme === 'dark' ? (
               <img src="/logotipoRoxa.png" className="w-8" />
             ) : (
-              <img src="/logotipoLaranja.png" className="w-8" />
+              <img src="/logotiporoxa.png" className="w-8" />
             )}
           </div>
           </span>
