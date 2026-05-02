@@ -1,76 +1,98 @@
-const autenticar = require('../middleware/autenticar')
-const express = require('express');
-const db      = require('../db');
-const router = express.Router();
+const autenticar = require('../middleware/autenticar');
+const express    = require('express');
+const db         = require('../db');
+const router     = express.Router();
+
+// Cache: chave = usuarioId, valor = { data: [...], expiresAt: timestamp }
+const tarefasCache = new Map();
+const CACHE_TTL = 30 * 1000; // 30 segundos
+
+function getCache(usuarioId) {
+    const entry = tarefasCache.get(usuarioId);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+        tarefasCache.delete(usuarioId); // expirado
+        return null;
+    }
+    return entry.data;
+}
+
+function setCache(usuarioId, data) {
+    tarefasCache.set(usuarioId, { data, expiresAt: Date.now() + CACHE_TTL });
+}
+
+function invalidarCache(usuarioId) {
+    tarefasCache.delete(usuarioId);
+}
 
 // ─── GET /tarefas ─────────────────────────────────────────────
-// autenticar é o middleware — ele roda primeiro e só deixa passar se o token for válido
-
 router.get('/tarefas', autenticar, (req, res) => {
-    // req.usuarioId foi preenchido pelo middleware — busca só as tarefas desse usuário
+    const cached = getCache(req.usuarioId);
+    if (cached) {
+        return res.json(cached); // retorna do cache sem bater no banco
+    }
+
+    // Só busca colunas necessárias em vez de SELECT *
     db.query(
-        'select * from tarefas where usuario_id = ? order by criado_em desc',
+        'SELECT id, titulo, status, criado_em FROM tarefas WHERE usuario_id = ? ORDER BY criado_em DESC',
         [req.usuarioId],
         (err, results) => {
             if (err) return res.status(500).json({ error: 'Erro ao buscar tarefas' });
+            setCache(req.usuarioId, results);
             res.json(results);
         }
     );
 });
 
 // ─── POST /tarefas ────────────────────────────────────────────
-
 router.post('/tarefas', autenticar, (req, res) => {
     const { titulo } = req.body;
     if (!titulo) return res.status(400).json({ error: 'O título é obrigatório' });
 
-    // inclui o usuario_id na inserção — a tarefa já nasce com dono
     db.query(
-        'insert into tarefas (titulo, usuario_id) values (?, ?)',
+        'INSERT INTO tarefas (titulo, usuario_id) VALUES (?, ?)',
         [titulo, req.usuarioId],
         (err, results) => {
             if (err) return res.status(500).json({ error: err.message });
+            invalidarCache(req.usuarioId); // força novo GET no banco
             res.status(201).json({ id: results.insertId, titulo, status: 'a_fazer' });
         }
     );
 });
 
 // ─── PATCH /tarefas/:id/status ────────────────────────────────
-
 router.patch('/tarefas/:id/status', autenticar, (req, res) => {
-    const { id } = req.params;
+    const { id }     = req.params;
     const { status } = req.body;
 
     const validos = ['a_fazer', 'fazendo', 'concluido'];
     if (!validos.includes(status))
         return res.status(400).json({ error: 'Status inválido.' });
 
-    // o WHERE garante que o usuário só consegue atualizar as próprias tarefas
     db.query(
-        'update tarefas set status = ? where id = ? and usuario_id = ?',
+        'UPDATE tarefas SET status = ? WHERE id = ? AND usuario_id = ?',
         [status, id, req.usuarioId],
         (err) => {
             if (err) return res.status(500).json({ error: 'Erro ao atualizar status' });
+            invalidarCache(req.usuarioId); // força novo GET no banco
             res.json({ 'Novo status': status });
         }
     );
 });
 
 // ─── DELETE /tarefas/:id ──────────────────────────────────────
-
 router.delete('/tarefas/:id', autenticar, (req, res) => {
     const { id } = req.params;
 
-    // o WHERE garante que o usuário só consegue deletar as próprias tarefas
     db.query(
-        'delete from tarefas where id = ? and usuario_id = ?',
+        'DELETE FROM tarefas WHERE id = ? AND usuario_id = ?',
         [id, req.usuarioId],
         (err) => {
             if (err) return res.status(500).json({ error: 'Erro ao deletar tarefa' });
+            invalidarCache(req.usuarioId); // força novo GET no banco
             res.json({ message: 'Tarefa deletada com sucesso' });
         }
     );
 });
 
 module.exports = router;
-

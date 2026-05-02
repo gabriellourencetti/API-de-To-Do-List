@@ -1,29 +1,27 @@
 const express = require('express');
 const bcrypt  = require('bcrypt');
 const jwt     = require('jsonwebtoken');
-const db      = require('../db'); // ../ porque está dentro de routes/
+const db      = require('../db');
 const router  = express.Router();
 const JWT_SECRET = 'todo_secret_123';
 
+// Cache de usuários para evitar query no login repetido
+const userCache = new Map();
 
 // ─── POST /cadastro ───────────────────────────────────────────
-// Recebe nome, email e senha — salva o usuário no banco com a senha criptografada
-
 router.post('/cadastro', async (req, res) => {
     const { nome, email, senha } = req.body;
     if (!nome || !email || !senha)
         return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
 
     try {
-        // bcrypt.hash criptografa a senha — o 10 é o "custo" (quanto mais alto, mais seguro e lento)
         const senha_hash = await bcrypt.hash(senha, 10);
 
         db.query(
-            'insert into usuarios (nome, email, senha_hash) values (?, ?, ?)',
+            'INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)',
             [nome, email, senha_hash],
             (err, results) => {
                 if (err) {
-                    // Erro 1062 = email duplicado (violou o UNIQUE)
                     if (err.errno === 1062)
                         return res.status(400).json({ error: 'Este email já está cadastrado.' });
                     return res.status(500).json({ error: err.message });
@@ -37,29 +35,46 @@ router.post('/cadastro', async (req, res) => {
 });
 
 // ─── POST /login ──────────────────────────────────────────────
-// Recebe email e senha — verifica se batem e retorna um token JWT
-
 router.post('/login', (req, res) => {
     const { email, senha } = req.body;
     if (!email || !senha)
         return res.status(400).json({ error: 'Email e senha são obrigatórios.' });
 
-    db.query('select * from usuarios where email = ?', [email], async (err, results) => {
+    // Só busca as colunas necessárias em vez de SELECT *
+    const query = 'SELECT id, nome, senha_hash FROM usuarios WHERE email = ?';
+
+    // Verifica cache antes de bater no banco
+    if (userCache.has(email)) {
+        const usuario = userCache.get(email);
+        return validarSenhaEResponder(usuario, senha, res);
+    }
+
+    db.query(query, [email], async (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
 
-        const usuario = results[0]; // pega o primeiro (e único) resultado
+        const usuario = results[0];
         if (!usuario)
             return res.status(401).json({ error: 'Email ou senha incorretos.' });
 
-        // bcrypt.compare compara a senha digitada com o hash salvo no banco
+        // Salva no cache por 5 minutos
+        userCache.set(email, usuario);
+        setTimeout(() => userCache.delete(email), 5 * 60 * 1000);
+
+        validarSenhaEResponder(usuario, senha, res);
+    });
+});
+
+async function validarSenhaEResponder(usuario, senha, res) {
+    try {
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
         if (!senhaCorreta)
             return res.status(401).json({ error: 'Email ou senha incorretos.' });
 
-        // Gera o token com o id do usuário dentro — expira em 8 horas
         const token = jwt.sign({ id: usuario.id }, JWT_SECRET, { expiresIn: '8h' });
         res.json({ token, nome: usuario.nome });
-    });
-});
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
 
 module.exports = router;
