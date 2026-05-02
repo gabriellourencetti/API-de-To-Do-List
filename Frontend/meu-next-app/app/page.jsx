@@ -196,7 +196,13 @@ export default function Home() {
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-gray-800 border-t border-stone-200 dark:border-gray-700 shadow-lg">
         <div className="flex items-center justify-between px-6 py-4">
           <span className="text-sm font-bold tracking-widest text-stone-400 dark:text-gray-500 uppercase">
-            {name}
+             <div className="mb-auto">
+            {theme === 'dark' ? (
+              <img src="/logotipoRoxa.png" className="w-8" />
+            ) : (
+              <img src="/logotipoLaranja.png" className="w-8" />
+            )}
+          </div>
           </span>
           <div className="flex items-center gap-3">
             <button
