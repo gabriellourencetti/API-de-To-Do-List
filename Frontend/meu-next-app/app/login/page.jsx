@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const API = 'http://localhost:3001';
@@ -15,6 +15,11 @@ export default function Login() {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
+
+    useEffect(() =>{
+        const token = localStorage.setItem('token', data.token)
+        if(token) router.push('/')
+    }, [])
 
     async function handleLogin() {
         setErro('');

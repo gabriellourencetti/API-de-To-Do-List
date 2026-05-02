@@ -95,9 +95,11 @@ export default function Home() {
         {/* ── SIDEBAR (apenas desktop) ── */}
         <aside className="hidden lg:flex flex-col items-center bg-white dark:bg-gray-800 border-r border-stone-200 dark:border-gray-700 py-6 shadow-sm w-16 shrink-0">
           <div className="mb-auto">
-            <span className="text-xs font-bold tracking-widest text-stone-400 dark:text-gray-500 uppercase [writing-mode:vertical-rl] rotate-180">
-              {name}
-            </span>
+            {theme === 'dark' ? (
+              <img src="/logotipoRoxa.png" className="w-12" />
+            ) : (
+              <img src="/logotipoLaranja.png" className="w-12" />
+            )}
           </div>
           <div className="flex flex-col gap-3 items-center">
             <button onClick={() => setModalConfigAberto(true)} title="Configurações"
@@ -148,13 +150,6 @@ export default function Home() {
                             : coluna.cor
                             }`}
                         >
-
-
-
-
-
-
-
                           {tarefasDaColuna.map((tarefa, index) => (
                             <Draggable key={String(tarefa.id)} draggableId={String(tarefa.id)} index={index}>
                               {(provided, snapshot) => (
